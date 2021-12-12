@@ -10,7 +10,7 @@ if torch.__version__ >= '1.6.0':
 else:
     from .torch_amp_dummy import autocast, GradScaler
 from torchvision_models.segmentation import erfnet_resnet, deeplabv1_vgg16, deeplabv1_resnet18, deeplabv1_resnet34, \
-    deeplabv1_resnet50, deeplabv1_resnet101, enet_
+    deeplabv1_resnet50, deeplabv1_resnet101, enet_, deeplabv1_repvgg
 from torchvision_models.lane_detection import LSTR, RESANet
 from torchvision_models.lane_detection.utils import lane_pruning
 from utils.datasets import StandardLaneDetectionDataset, TuSimple, CULane, LLAMAS, dict_collate_fn
@@ -135,6 +135,12 @@ def lstr_resnet(num_classes_max=7, backbone_name='resnet18s', expansion=1, aux_l
 
     return LSTR(num_queries=num_classes_max, backbone_name=backbone_name, expansion=expansion, aux_loss=aux_loss,
                 trace_arg=trace_arg)
+
+
+def repvgg_tusimple(num_classes, scnn=False, backbone_name='RepVGG-A0'):
+    # Define Vgg16 for Tusimple (With only ImageNet pretraining)
+    return deeplabv1_repvgg(backbone_name=backbone_name, num_classes=num_classes, num_lanes=num_classes - 1,
+                            dropout_1=0.1, flattened_size=6160, scnn=scnn)
 
 
 def init(batch_size, state, input_sizes, dataset, mean, std, base, workers=10, method='baseline',
@@ -564,6 +570,8 @@ def build_lane_detection_model(args, num_classes, tracing=False):
         net = vgg16_culane(num_classes=num_classes, scnn=scnn)
     elif args.dataset == 'tusimple' and args.backbone == 'vgg16':
         net = vgg16_tusimple(num_classes=num_classes, scnn=scnn)
+    elif args.dataset == 'tusimple' and 'RepVGG' in args.backbone:
+        net = repvgg_tusimple(num_classes=num_classes, scnn=scnn, backbone_name=args.backbone)
     elif args.dataset == 'tusimple' and 'resnet' in args.backbone:
         net = resnet_tusimple(num_classes=num_classes, spatial_conv=spatial_conv, backbone_name=args.backbone,
                               trace_arg=trace_arg)

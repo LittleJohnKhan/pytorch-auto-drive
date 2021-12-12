@@ -9,13 +9,15 @@ from .fcn import FCN, FCNHead
 from .erfnet import ERFNet
 from .deeplab_vgg import DeepLabV1
 from .enet import ENet
+from .rep_vgg import SegRepVGG
 from ..common_models import SpatialConv, SimpleLaneExist, RESAReducer
 from torch import load
 
 
 __all__ = ['fcn_resnet50', 'fcn_resnet101', 'deeplabv2_resnet101', 'deeplabv3_resnet50', 'deeplabv3_resnet101',
            'erfnet_resnet', 'deeplabv1_vgg16', 'enet_',
-           'deeplabv1_resnet101', 'deeplabv1_resnet50', 'deeplabv1_resnet34', 'deeplabv1_resnet18']
+           'deeplabv1_resnet101', 'deeplabv1_resnet50', 'deeplabv1_resnet34', 'deeplabv1_resnet18',
+           'deeplabv1_repvgg']
 
 model_urls = {
     'fcn_resnet50_coco': None,
@@ -260,6 +262,14 @@ def deeplabv1_vgg16(pretrained_weights='pytorch-pretrained', num_classes=19, num
         pretrain = True
     net = DeepLabV1(num_classes=num_classes, encoder=None, num_lanes=num_lanes, dropout_1=dropout_1,
                     flattened_size=flattened_size, scnn=scnn, pretrain=pretrain)
+    return net
+
+
+def deeplabv1_repvgg(num_classes=19, num_lanes=0, dropout_1=0.1, flattened_size=4500, scnn=False,
+                     backbone_name='RepVGG-A0', pretrained=False, deploy=False):
+    net = SegRepVGG(num_classes=num_classes, encoder=None, num_lanes=num_lanes, dropout_1=dropout_1,
+                    flattened_size=flattened_size, scnn=scnn, pretrained=pretrained, deploy=deploy,
+                    backbone_name=backbone_name)
     return net
 
 
