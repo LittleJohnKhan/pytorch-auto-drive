@@ -385,7 +385,14 @@ class SegRepVGG(nn.Module):
         Returns:
             Module: self
         """
+        temp = torch.randn(1, 3, 288, 800).cuda()
+        wo_deploy = self.encoder(temp)
         for module in self.encoder.modules():
             if hasattr(module, 'switch_to_deploy'):
                 module.switch_to_deploy()
+        w_deploy = self.encoder(temp)
+        diff = torch.mean(wo_deploy - w_deploy)
+        print("Average diff {}".format(diff))
+        print("Deployed!")
+        quit(0)
         return self.train(False)
