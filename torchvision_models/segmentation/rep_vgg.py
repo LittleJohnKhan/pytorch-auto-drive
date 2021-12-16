@@ -312,11 +312,6 @@ class RepVggEncoder(nn.Module):
         return x4
 
 
-# t = torch.randn(1, 3, 288, 800)
-# net = RepVggEncoder(backbone_name='RepVGG-A0', pretrained=True)
-# res = net(t)
-# print(res.shape)
-
 class SegRepVGG(nn.Module):
     def __init__(self, num_classes, encoder=None, num_lanes=0, dropout_1=0.1, flattened_size=3965,
                  scnn=False, backbone_name='RepVGG-A0', pretrained=False, deploy=False):
@@ -385,14 +380,8 @@ class SegRepVGG(nn.Module):
         Returns:
             Module: self
         """
-        temp = torch.randn(1, 3, 288, 800).cuda()
-        wo_deploy = self.encoder(temp)
         for module in self.encoder.modules():
             if hasattr(module, 'switch_to_deploy'):
                 module.switch_to_deploy()
-        w_deploy = self.encoder(temp)
-        diff = torch.mean(wo_deploy - w_deploy)
-        print("Average diff {}".format(diff))
         print("Deployed!")
-        quit(0)
         return self.train(False)

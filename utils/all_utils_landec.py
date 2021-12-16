@@ -142,6 +142,11 @@ def repvgg_tusimple(num_classes, scnn=False, backbone_name='RepVGG-A0'):
     return deeplabv1_repvgg(backbone_name=backbone_name, num_classes=num_classes, num_lanes=num_classes - 1,
                             dropout_1=0.1, flattened_size=6160, scnn=scnn)
 
+def repvgg_culane(num_classes, scnn=False, backbone_name='RepVGG-A0'):
+    # Define Vgg16 for CULane (With only ImageNet pretraining)
+    return deeplabv1_repvgg(backbone_name=backbone_name, num_classes=num_classes, num_lanes=num_classes - 1,
+                            dropout_1=0.1, flattened_size=4500, scnn=scnn)
+
 
 def init(batch_size, state, input_sizes, dataset, mean, std, base, workers=10, method='baseline',
          aug_level=0, eigen_value=None, eigen_vector=None, ddp=False):
@@ -572,6 +577,8 @@ def build_lane_detection_model(args, num_classes, tracing=False):
         net = vgg16_tusimple(num_classes=num_classes, scnn=scnn)
     elif args.dataset == 'tusimple' and 'RepVGG' in args.backbone:
         net = repvgg_tusimple(num_classes=num_classes, scnn=scnn, backbone_name=args.backbone)
+    elif args.dataset == 'culane' and 'RepVGG' in args.backbone:
+        net = repvgg_culane(num_classes=num_classes, scnn=scnn, backbone_name=args.backbone)
     elif args.dataset == 'tusimple' and 'resnet' in args.backbone:
         net = resnet_tusimple(num_classes=num_classes, spatial_conv=spatial_conv, backbone_name=args.backbone,
                               trace_arg=trace_arg)
